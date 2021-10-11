@@ -33,7 +33,6 @@ class Auto(Resource):
         data = Auto.parser.parse_args()
         if AutoModel.find_by_name(data['name']):
             return {'message': "An auto whit name '{}' already exists.".format(data['name'])}, 400
-
         auto = AutoModel(**data)
 
         try:
@@ -42,21 +41,6 @@ class Auto(Resource):
             return {"message": "An error occurred inserting the item."}, 500
 
         return auto.json(), 201
-
-
-    def put(self, name):
-        data = Auto.parser.parse_args()
-
-        auto = AutoModel.find_by_name(name)
-
-        if auto is None:
-            auto = AutoModel(name, **data)
-        else:
-            auto.price = data['price']
-
-        auto.save_to_db()
-
-        return auto.json()
 
 
 class AutoList(Resource):
@@ -78,3 +62,15 @@ class AutoId(Resource):
             auto.delete_from_db()
             return {'message': 'Auto deleted.'}
         return {'message': 'Item not found.'}, 404
+
+    def put(self, id):
+        data = Auto.parser.parse_args()
+        auto = AutoModel.find_by_id(id)
+        if auto is None:
+            auto = AutoModel(**data)
+        else:
+            auto.price = data['price']
+            auto.color = data['color']
+
+        auto.save_to_db()
+        return auto.json()
