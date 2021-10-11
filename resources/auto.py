@@ -27,12 +27,12 @@ class Auto(Resource):
     parser.add_argument('name',
         type=string_name,
         required=True,
-        help="Error al ingresar el modelo"
+        help="El modelo del auto no puede estar vacio"
     )
     parser.add_argument('color',
         type=string_color,
         required=True,
-        help="El color del auto no puede estar en blanco."
+        help="El color del auto solo puede ser uno de los disponibles por el fabricante: Gris, Negro, Blanco, Rojo o Azul."
     )
     parser.add_argument('price',
         type=float,
