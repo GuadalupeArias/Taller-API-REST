@@ -22,8 +22,8 @@ class AutoModel(db.Model):
         return {'id': self.id, 'year': self.year, 'name': self.name, 'color': self.color, 'price': self.price, 'user_id': self.user_id}
 
     @classmethod
-    def find_by_name(cls, name):
-        return cls.query.filter_by(name=name).first() # SELECT * FROM items WHERE name=name LIMIT 1
+    def find_by_name(cls, name, year, color):
+        return cls.query.filter_by(name=name).filter_by(year=year).filter_by(color=color).first() # SELECT * FROM items WHERE name=name LIMIT 1
 
 
     @classmethod
