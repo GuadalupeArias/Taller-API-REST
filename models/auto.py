@@ -19,7 +19,7 @@ class AutoModel(db.Model):
         self.user_id = user_id
 
     def json(self):
-        return {'year': self.year, 'name': self.name, 'color': self.color, 'price': self.price}
+        return {'id': self.id, 'year': self.year, 'name': self.name, 'color': self.color, 'price': self.price}
 
     @classmethod
     def find_by_name(cls, name):
