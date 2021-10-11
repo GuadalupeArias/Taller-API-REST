@@ -2,17 +2,23 @@
 from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from models.auto import AutoModel
+from marshmallow import ValidationError
 
 
 def string_name(str, type):
     if str.isspace():
-        raise ValidationError("No puede ingresar solo espacios")
+        raise ValidationError("El modelo no puede estar vacio.")
     return str
 
 def string_color(str, type):
     if str not in colores:
-        raise ValueError("No puede ingresar solo espacios")
+        raise ValidationError("El color del auto solo puede ser uno de los disponibles por el fabricante: Gris, Negro, Blanco, Rojo o Azul.")
     return str
+
+def float_precio(float, type):
+    if float <=0:
+        raise ValidationError("El precio del auto es obligatorio y debe ser un valor numérico mayor a 0")
+    return float
 
 colores = ["Gris", "Negro", "Blanco", "Rojo", "Azul"]
 
@@ -26,18 +32,15 @@ class Auto(Resource):
     )
     parser.add_argument('name',
         type=string_name,
-        required=True,
-        help="El modelo del auto no puede estar vacio"
+        required=True
     )
     parser.add_argument('color',
         type=string_color,
-        required=True,
-        help="El color del auto solo puede ser uno de los disponibles por el fabricante: Gris, Negro, Blanco, Rojo o Azul."
+        required=True
     )
     parser.add_argument('price',
-        type=float,
-        required=True,
-        help="El precio del auto es obligatorio y debe ser un valor numérico."
+        type=float_precio,
+        required=True
     )
     parser.add_argument('user_id',
         type=int,
