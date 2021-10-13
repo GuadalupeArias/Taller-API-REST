@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse
 from flask_jwt import jwt_required
 from models.auto import AutoModel
 from marshmallow import ValidationError
+from flask import jsonify
 
 
 def string_name(str, type):
@@ -64,7 +65,7 @@ class Auto(Resource):
 
 class AutoList(Resource):
     def get(self):
-        return {'autos': [auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()]}
+        return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
 
 
 class AutoId(Resource):
