@@ -65,7 +65,7 @@ class Auto(Resource):
 
 class AutoList(Resource):
     def get(self):
-        return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
+        return {'autos': [auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()]}
 
 
 class AutoId(Resource):
