@@ -63,7 +63,6 @@ class Auto(Resource):
         return auto.json(), 201
 
 
-class AutoList(Resource):
     def get(self):
         return {'autos': [auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()]}
 
