@@ -64,7 +64,7 @@ class Auto(Resource):
 
 
     def get(self):
-        return {'autos': [auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()]}
+        return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
 
 
 class AutoId(Resource):
@@ -99,6 +99,7 @@ class AutoId(Resource):
             auto.year = data['year']
             auto.color = data['color']
             auto.price = data['price']
+
 
         auto.save_to_db()
         return auto.json()
