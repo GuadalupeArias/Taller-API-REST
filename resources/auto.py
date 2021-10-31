@@ -6,6 +6,9 @@ from marshmallow import ValidationError
 from flask import jsonify
 
 
+
+
+#Validaciones en modificar y crear: Que no sea null el precio, ver el tema none.
 def string_name(str, type):
     if str.isspace():
         raise ValidationError("El modelo no puede estar vacio.")
@@ -13,7 +16,7 @@ def string_name(str, type):
 
 def string_color(str, type):
     if str not in colores:
-        raise ValidationError("El color del auto solo puede ser uno de los disponibles por el fabricante: Gris, Negro, Blanco, Rojo o Azul.")
+        raise ValidationError("El color del auto solo puede ser: Gris, Negro, Blanco, Rojo o Azul.")
     return str
 
 def float_precio(float, type):
@@ -53,7 +56,7 @@ class Auto(Resource):
         data = Auto.parser.parse_args()
         auto = AutoModel.find_by_name(data['name'], data['year'], data['color'])
         if auto:
-            return {'message': "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}, 409
+            return {'message': {"modelo": "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}}, 409
         auto = AutoModel(**data)
         try:
             auto.save_to_db()
@@ -79,7 +82,7 @@ class AutoId(Resource):
         auto = AutoModel.find_by_id(id)
         if auto:
             auto.delete_from_db()
-            return {'message': 'Auto eliminado.'}, 204
+            return {'': ''}, 204
         return {'message': 'No se encontró el auto buscado.'}, 404
 
     def put(self, id):
