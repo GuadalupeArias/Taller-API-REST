@@ -4,11 +4,9 @@ from flask_jwt import jwt_required
 from models.auto import AutoModel
 from marshmallow import ValidationError
 from flask import jsonify
+import json
 
 
-
-
-#Validaciones en modificar y crear: Que no sea null el precio, ver el tema none.
 def string_name(str, type):
     if str.isspace():
         raise ValidationError("El modelo no puede estar vacio.")
@@ -54,6 +52,8 @@ class Auto(Resource):
 
     def post(self):
         data = Auto.parser.parse_args()
+        if data['price'] is None or data['name'] is None or data['name'] == "" or data['year'] is None:
+            return {'message': {"campos": "Los campos no pueden estar vacios"}}, 400
         auto = AutoModel.find_by_name(data['name'], data['year'], data['color'])
         if auto:
             return {'message': {"modelo": "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}}, 409
@@ -87,6 +87,8 @@ class AutoId(Resource):
 
     def put(self, id):
         data = Auto.parser.parse_args()
+        if data['price'] is None or data['name'] is None or data['name'] == "" or data['year'] is None:
+            return {'message': {"campos": "Los campos no pueden estar vacios"}}, 400
         auto = AutoModel.find_by_id(id)
         if auto is None:
             auto = AutoModel(**data)
