@@ -4,8 +4,10 @@ from flask_jwt import jwt_required
 from models.auto import AutoModel
 from marshmallow import ValidationError
 from flask import jsonify
+from flask import request
 import json
 
+#Token: capturar header, enviarlo al bck de merce con un request (acceder al sitio de ella)
 
 def string_name(str, type):
     if str.isspace():
@@ -67,7 +69,17 @@ class Auto(Resource):
 
 
     def get(self):
-        return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
+        color = request.args.get('color')
+        year = request.args.get('year')
+        if color is None and year is None: #sin parametros de busqueda
+            return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
+        elif color:
+            if year: #busqueda por color y año
+                return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.color==color).filter(AutoModel.year==year).order_by(AutoModel.id)])
+            else: #busqueda por color
+                return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.color==color).order_by(AutoModel.id)])
+        else: #busqueda por año
+            return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.year==year).order_by(AutoModel.id)])
 
 
 class AutoId(Resource):
