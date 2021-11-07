@@ -74,7 +74,7 @@ class Auto(Resource):
         token = None
         if 'x-access-token' in request.headers:
             token = request.headers['x-access-token']
-            print (token)
+            return token
         if color is None and year is None: #sin parametros de busqueda
             return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
         elif color:
