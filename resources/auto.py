@@ -57,6 +57,7 @@ class Auto(Resource):
         data = Auto.parser.parse_args()
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
+            print ("Soy el Token")
             print(token)
             url = "https://concesionario-crud.herokuapp.com/me"
             headers = CaseInsensitiveDict()
