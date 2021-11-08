@@ -4,5 +4,6 @@ Flask-JWT
 Flask-SQLAlchemy
 Flask-CORS
 Flask-marshmallow
+requests
 uwsgi
 psycopg2
