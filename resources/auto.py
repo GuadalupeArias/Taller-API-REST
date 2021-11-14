@@ -122,6 +122,10 @@ class Auto(Resource):
                     else: #busqueda por color
                         return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.color==color).order_by(AutoModel.id)])
                 else: #busqueda por año
+                    try:
+                        val = int(year)
+                    except ValueError:
+                        return {'message': {'year': 'El año de la unidad debe ser un entero.'}}, 400
                     return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.year==year).order_by(AutoModel.id)])
             else:
                 return {"message": "No autorizado."}, 401
