@@ -7,20 +7,28 @@ from flask import request
 import json
 import requests
 from requests.structures import CaseInsensitiveDict
-#Token: capturar header, enviarlo al bck de merce con un request (acceder al sitio de ella)
+#cambiar recurso a plural. (autos) (no lo hago para no joder al front)
+
+# url para el request del token http://concesionario-crud.herokuapp.com/me
+
 def string_name(str, type):
     if str.isspace():
         raise ValidationError("El modelo no puede estar vacio.")
     return str
+
 def string_color(str, type):
     if str not in colores:
         raise ValidationError("El color del auto solo puede ser: Gris, Negro, Blanco, Rojo o Azul.")
     return str
+
 def float_precio(float, type):
     if float <=0:
         raise ValidationError("El precio del auto es obligatorio y debe ser un valor numérico mayor a 0")
     return float
+
 colores = ["Gris", "Negro", "Blanco", "Rojo", "Azul"]
+
+
 class Auto(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('year',
@@ -40,28 +48,35 @@ class Auto(Resource):
         type=float_precio,
         required=True
     )
-#    parser.add_argument('user_id',
-#        type=int,
-#        required=True,
-#        help="El ID del vendedor es obligatorio y debe ser un valor numérico."
-#    )
-# url para el request del token http://concesionario-crud.herokuapp.com/me
+
+
+    parsarg = reqparse.RequestParser()
+    parsarg.add_argument('year',
+        type=int,
+        required=False,
+        help="El año de la unidad es obligatorio, solo se admiten autos del 2020 en adelante."
+    )
+    parsarg.add_argument('color',
+        type=string_color,
+        required=False
+    )
+
+
     def post(self):
         data = Auto.parser.parse_args()
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-            print ("Soy el Token")
-            print(token)
             url = "https://concesionario-crud.herokuapp.com/me"
             headers = CaseInsensitiveDict()
             headers["Accept"] = "application/json"
             headers["Authorization"] = "Bearer {}".format(token)
             resp = requests.get(url, headers=headers)
             datos = resp.json()
-            print(resp.status_code)
             if resp.status_code == 200:
                 if data['price'] is None or data['name'] is None or data['name'] == "" or data['year'] is None:
-                    return {'message': {"campos": "Los campos no pueden estar vacios"}}, 400
+                    return {'message': {'campos': 'Los campos no pueden estar vacios'}}, 400
+                if data['year'] <2020:
+                    return {'message': {'year': 'El año de la unidad es obligatorio, solo se admiten autos del 2020 en adelante.'}}, 412
                 auto = AutoModel.find_by_name(data['name'], data['year'], data['color'])
                 if auto:
                     return {'message': {"modelo": "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}}, 409
@@ -70,12 +85,18 @@ class Auto(Resource):
                     auto.save_to_db()
                 except:
                     return {"message": "Surgió un error inesperado guardando el auto."}, 500
+
                 return auto.json(), 201
             else:
                 return {"message": "No autorizado."}, 401
         else:
             return {"message": "No autorizado."}, 401
+
+
     def get(self):
+        #data = Auto.parsarg.parse_args()
+        #color = data['color']
+        #year = data['year']
         color = request.args.get('color')
         year = request.args.get('year')
         token = None
@@ -93,6 +114,10 @@ class Auto(Resource):
                     return jsonify([auto.json() for auto in AutoModel.query.order_by(AutoModel.id).all()])
                 elif color:
                     if year: #busqueda por color y año
+                        try:
+                            val = int(year)
+                        except ValueError:
+                            return {'message': {'year': 'El año de la unidad debe ser un entero.'}}, 400
                         return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.color==color).filter(AutoModel.year==year).order_by(AutoModel.id)])
                     else: #busqueda por color
                         return jsonify([auto.json() for auto in AutoModel.query.filter(AutoModel.color==color).order_by(AutoModel.id)])
@@ -102,17 +127,16 @@ class Auto(Resource):
                 return {"message": "No autorizado."}, 401
         else:
             return {"message": "No autorizado."}, 401
+
 class AutoId(Resource):
     def get(self, id):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-            print(token)
             url = "https://concesionario-crud.herokuapp.com/me"
             headers = CaseInsensitiveDict()
             headers["Accept"] = "application/json"
             headers["Authorization"] = "Bearer {}".format(token)
             resp = requests.get(url, headers=headers)
-            print(resp.status_code)
             if resp.status_code == 200:
                 auto = AutoModel.find_by_id(id)
                 if auto:
@@ -122,16 +146,15 @@ class AutoId(Resource):
                 return {"message": "No autorizado."}, 401
         else:
             return {"message": "No autorizado."}, 401
+
     def delete(self, id):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-            print(token)
             url = "https://concesionario-crud.herokuapp.com/me"
             headers = CaseInsensitiveDict()
             headers["Accept"] = "application/json"
             headers["Authorization"] = "Bearer {}".format(token)
             resp = requests.get(url, headers=headers)
-            print(resp.status_code)
             if resp.status_code == 200:
                 auto = AutoModel.find_by_id(id)
                 if auto:
@@ -142,34 +165,35 @@ class AutoId(Resource):
                 return {"message": "No autorizado."}, 401
         else:
             return {"message": "No autorizado."}, 401
+
     def put(self, id):
         if 'Authorization' in request.headers:
             token = request.headers['Authorization']
-            print(token)
             url = "https://concesionario-crud.herokuapp.com/me"
             headers = CaseInsensitiveDict()
             headers["Accept"] = "application/json"
             headers["Authorization"] = "Bearer {}".format(token)
             resp = requests.get(url, headers=headers)
-            print(resp.status_code)
             if resp.status_code == 200:
                 data = Auto.parser.parse_args()
                 if data['price'] is None or data['name'] is None or data['name'] == "" or data['year'] is None:
                     return {'message': {"campos": "Los campos no pueden estar vacios"}}, 400
+                if data['year'] <2020:
+                    return {'message': {'year': 'El año de la unidad es obligatorio, solo se admiten autos del 2020 en adelante.'}}, 412
                 auto = AutoModel.find_by_id(id)
                 if auto is None:
-                    auto = AutoModel(**data)
-                    auto2 = AutoModel.find_by_name(data['name'], data['year'], data['color'])
-                    if auto2:
-                        return {'message': "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}, 409
+                    return {'message': 'No se encontró el auto buscado.'}, 404
                 else:
                     auto2 = AutoModel.find_by_name(data['name'], data['year'], data['color'])
                     if auto2 and auto2.id != auto.id:
                         return {'message': "Ya existe el modelo '{}' como ese mismo año y color.".format(data['name'])}, 409
+
                     auto.name = data['name']
                     auto.year = data['year']
                     auto.color = data['color']
                     auto.price = data['price']
+
+
                 auto.save_to_db()
                 return auto.json()
             else:
